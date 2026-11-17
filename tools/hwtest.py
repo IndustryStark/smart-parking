@@ -5,7 +5,7 @@ sudo systemctl stop smartparking), from the project folder:
   python tools/hwtest.py rfid                      # hold a chip at the reader, UIDs are printed
   python tools/hwtest.py sensors                   # raw IR sensor states for the demo pins, Ctrl+C to stop
   python tools/hwtest.py sensors --pins 5,6,13     # your own pins (BCM)
-  python tools/hwtest.py ultrasonic --echo 12 --trigger 7
+  python tools/hwtest.py ultrasonic --echo 4 --trigger 3
   python tools/hwtest.py servo                     # open, wait, close the barrier once
   python tools/hwtest.py led                       # blue, green, red, blinking red
   python tools/hwtest.py buttons                   # press button 1 (show place again) and button 2 (help)
@@ -17,7 +17,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-DEMO_PINS = "5,6,13,19,26,20,21,16"
+DEMO_PINS = "5,6,13,19,24,20,21,16"
 
 
 def test_rfid(_):
@@ -86,11 +86,15 @@ def test_led(_):
 def test_buttons(_):
     from smartparking import config
     from smartparking.drivers.indicators import PushButton
-    b1 = PushButton(lambda: print("button 1 (show place again)", flush=True), config.REPEAT_BUTTON_PIN)
-    b2 = PushButton(lambda: print("button 2 (help)", flush=True), config.HELP_BUTTON_PIN)
+    hi = config.BUTTONS_ACTIVE_HIGH
+    b1 = PushButton(lambda: print("button 1 (S1: show place again)", flush=True), config.REPEAT_BUTTON_PIN, hi)
+    b2 = PushButton(lambda: print("button 2 (S2: help)", flush=True), config.HELP_BUTTON_PIN, hi)
     b1.start()
     b2.start()
-    print(f"Press button 1 (GPIO{config.REPEAT_BUTTON_PIN}) and button 2 (GPIO{config.HELP_BUTTON_PIN}). Ctrl+C to stop.")
+    print(f"Buttons are treated as active-{'HIGH' if hi else 'LOW'} (PARKING_BUTTONS_ACTIVE_HIGH={int(hi)}).")
+    print(f"Press S1 (GPIO{config.REPEAT_BUTTON_PIN}) and S2 (GPIO{config.HELP_BUTTON_PIN}). Ctrl+C to stop.")
+    print("The message must appear when you PRESS. If it appears when you let go, run again with "
+          f"PARKING_BUTTONS_ACTIVE_HIGH={0 if hi else 1}.")
     try:
         while True:
             time.sleep(1)

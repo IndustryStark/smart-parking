@@ -114,7 +114,7 @@ def seed_demo(db):
         for rank, z in enumerate(order, start=1):
             db.x("INSERT INTO zone_pref VALUES(?,?,?)", (dep[d], zone[z], rank))
     layout = [("A1", "A", 2, 0, 5), ("A2", "A", 3, 0, 6), ("A3", "A", 4, 0, 13),
-              ("B1", "B", 2, 6, 19), ("B2", "B", 3, 6, 26), ("B3", "B", 4, 6, 20),
+              ("B1", "B", 2, 6, 19), ("B2", "B", 3, 6, 24), ("B3", "B", 4, 6, 20),
               ("C1", "C", 7, 2, 21), ("C2", "C", 7, 4, 16)]
     for name, z, x, y, pin in layout:
         db.x("INSERT INTO spots(name,zone_id,x,y,dist,sensor_kind,gpio_pin) VALUES(?,?,?,?,?,?,?)",

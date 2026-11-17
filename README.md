@@ -77,9 +77,9 @@ python tools/hwtest.py buttons     # press button 1 and button 2
 | Red, blinking | Chip refused |
 | Blue, blinking | Help requested |
 
-- **Button 1** (GPIO27): shows the assigned place again on the entrance screen. It refers to the last person who scanned a chip
+- **Button 1** (S1, GPIO22, pin 15): shows the assigned place again on the entrance screen. It refers to the last person who scanned a chip
   (within 5 minutes and while the spot is still theirs): the system cannot tell who presses.
-- **Button 2** (GPIO17): calls for help. The request is logged in the admin panel, shown on the entrance screen and the LED blinks blue.
+- **Button 2** (S2, GPIO26, pin 37): calls for help. The request is logged in the admin panel, shown on the entrance screen and the LED blinks blue.
 - In the simulator (`--mock`) the live map page has both buttons and shows the LED colour.
 
 ## Admin panel
@@ -119,16 +119,59 @@ tests/       allocator, state machine, admin API (all run without hardware)
 
 | Part | Pin |
 |------|-----|
-| MFRC522 RFID | SDA GPIO8 (CE0), SCK GPIO11, MOSI GPIO10, MISO GPIO9, RST GPIO25, **3.3 V**, GND. Enable SPI with `sudo raspi-config` |
-| Servo barrier | Signal GPIO18; power from an **external 5 V supply**; its GND joined to the Pi GND |
-| IR obstacle sensor per spot | OUT to the spot's GPIO (demo: 5, 6, 13, 19, 26, 20, 21, 16), VCC 3.3 V, GND |
-| RGB LED (common cathode) | Red GPIO22, green GPIO23, blue GPIO24, each through a 330 ohm resistor; common leg to GND |
-| Button 1 (show place again) | GPIO27 to GND (internal pull-up, no resistor needed) |
-| Button 2 (help) | GPIO17 to GND (internal pull-up, no resistor needed) |
+| RFID RC522 | See the table below. **3.3 V only.** Enable SPI with `sudo raspi-config` |
+| Servo barrier | Signal GPIO12 (pin 32); power from an **external 5 V supply**; its GND joined to the Pi GND |
+| IR obstacle sensor per spot | OUT to the spot's GPIO (demo: 5, 6, 13, 19, 24, 20, 21, 16), VCC 3.3 V, GND |
+| Multicolor (RGB) LED | See the table below |
+| Button module (S1 + S2) | See the table below |
 | Ultrasonic HC-SR04 (optional) | TRIG to `trigger_pin`; **ECHO is 5 V: use a 1k/2k voltage divider** to the GPIO pin |
 
+### Button module (S1 = show place again, S2 = help)
+
+| Module pin | Raspberry Pi | GPIO (BCM) |
+|------------|--------------|------------|
+| S1 | Pin 15 | GPIO 22 |
+| S2 | Pin 37 | GPIO 26 |
+| VCC | Pin 17 | 3.3 V |
+| GND | Breadboard ground rail | GND |
+
+- The module is powered from **3.3 V** (pin 17), never 5 V, so its outputs are safe for the GPIO pins.
+- The breadboard ground rail must itself be wired to a Pi GND pin (for example pin 14), otherwise the buttons do not work.
+  The LED's GND (pin 9) can share the same rail.
+- Do not use pin 26 (GPIO7) for a button: it is SPI chip-select 1 and unavailable while SPI is on for the RFID reader.
+- The software assumes the module outputs go **HIGH when pressed**. If `python tools/hwtest.py buttons` reports a press when you
+  let go, your module is active-low: set `PARKING_BUTTONS_ACTIVE_HIGH=0` in `/etc/smartparking.env` and restart the service.
+
+### Multicolor LED (common cathode)
+
+| LED pin | Raspberry Pi physical pin | GPIO (BCM) |
+|---------|---------------------------|------------|
+| Red | Pin 11 | GPIO 17 |
+| Green (the yellow "Gelb" jumper wire) | Pin 13 | GPIO 27 |
+| Blue | Pin 12 | GPIO 18 |
+| GND (common leg) | Pin 9 | GND |
+
+Use a 330 ohm resistor per colour channel unless the LED module already has them on board. Check in the admin panel or
+`tools/hwtest.py led` that blue, green and red light up as expected; if two colours are swapped, swap the names in
+`LED_PINS` in `smartparking/config.py`.
+
+### RFID reader (RC522, SPI)
+
+| RC522 pin | Raspberry Pi physical pin | GPIO (BCM) |
+|-----------|---------------------------|------------|
+| 3.3V | Pin 1 | 3.3 V |
+| RST | Pin 22 | GPIO 25 |
+| GND | Pin 6 | GND |
+| MISO | Pin 21 | GPIO 9 |
+| MOSI | Pin 19 | GPIO 10 |
+| SCK | Pin 23 | GPIO 11 |
+| SDA (SS / chip select) | Pin 24 | GPIO 8 (CE0) |
+
+The RC522 pin labelled IRQ stays unconnected. Never power the RC522 from 5 V.
+These are the Pi's default SPI0 pins, so no code change is needed: `tools/hwtest.py rfid` and the app use them as they are.
+
 Change a spot's pins in the admin panel; sensors are reconfigured immediately. The panel refuses pins 8, 9, 10, 11, 25
-(RFID), 18 (servo), 22, 23, 24 (LED), 27 and 17 (buttons), pins outside 2-27, and a pin already used by another spot.
+(RFID), 12 (servo), 17, 18, 27 (LED), 22 and 26 (buttons), pins outside 2-27, and a pin already used by another spot.
 
 ## Tests
 

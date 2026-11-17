@@ -231,10 +231,10 @@ def test_status_led_lights_one_colour_and_can_blink(fake_gpiozero):
 def test_push_button_calls_handler_once_per_press(fake_gpiozero):
     from smartparking.drivers.indicators import PushButton
     presses = []
-    b = PushButton(lambda: presses.append(1), pin=27)
+    b = PushButton(lambda: presses.append(1), pin=22)
     b.start()
     gz = FakeButton.last
-    assert gz.pin == 27 and gz.pull_up is True and gz.bounce_time == 0.05
+    assert gz.pin == 22 and gz.pull_up is True and gz.bounce_time == 0.05   # default: button to GND
     gz.when_pressed()
     gz.when_pressed()
     assert presses == [1, 1]
@@ -247,7 +247,7 @@ def test_two_buttons_use_their_own_pins(fake_gpiozero):
     for pin in (config.REPEAT_BUTTON_PIN, config.HELP_BUTTON_PIN):
         PushButton(lambda: None, pin).start()
         pins.append(FakeButton.last.pin)
-    assert pins == [27, 17]
+    assert pins == [22, 26]
 
 
 def test_button_handler_error_does_not_escape_the_gpio_callback(fake_gpiozero):
@@ -259,3 +259,21 @@ def test_button_handler_error_does_not_escape_the_gpio_callback(fake_gpiozero):
     b = PushButton(boom, pin=27)
     b.start()
     FakeButton.last.when_pressed()          # must not raise into gpiozero's thread
+
+
+def test_button_polarity_selects_pull_resistor(fake_gpiozero):
+    from smartparking.drivers.indicators import PushButton
+    PushButton(lambda: None, pin=22, active_high=True).start()
+    assert FakeButton.last.pull_up is False        # pin goes HIGH when pressed: internal pull-down
+    PushButton(lambda: None, pin=22, active_high=False).start()
+    assert FakeButton.last.pull_up is True         # pin goes LOW when pressed: internal pull-up
+
+
+def test_default_wiring_has_no_pin_clashes():
+    from smartparking import config, db
+    pins = [config.SERVO_PIN, config.REPEAT_BUTTON_PIN, config.HELP_BUTTON_PIN, *config.LED_PINS.values(), 8, 9, 10, 11, 25]
+    d = db.DB(":memory:")
+    db.seed_demo(d)
+    pins += [s["gpio_pin"] for s in d.q("SELECT gpio_pin FROM spots")]
+    assert len(pins) == len(set(pins)), sorted(p for p in pins if pins.count(p) > 1)
+    assert 7 not in pins and all(2 <= p <= 27 for p in pins)    # GPIO7 is SPI CE1

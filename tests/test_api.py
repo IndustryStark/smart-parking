@@ -60,7 +60,7 @@ def test_simulated_buttons_and_led_show_in_state(client):
 def test_led_button_pins_are_reserved(client):
     login(client)
     zone = client.get("/api/admin/zones").get_json()[0]["id"]
-    for pin in (22, 23, 24, 27, 17):
+    for pin in (17, 18, 27, 22, 26, 12):
         r = client.post("/api/admin/spots", json={"name": f"X{pin}", "zone_id": zone, "gpio_pin": pin})
         assert r.status_code == 400, pin
 
@@ -73,8 +73,8 @@ def test_gpio_pin_conflicts_are_rejected(client):
     assert new(8).status_code == 400            # SPI chip-select of the RFID reader
     assert new(18).status_code == 400           # servo
     assert new(30).status_code == 400           # not a header GPIO
-    assert new(12, trigger_pin=12).status_code == 400
-    assert new(12).status_code == 201           # a free pin works
+    assert new(4, trigger_pin=4).status_code == 400
+    assert new(4).status_code == 201            # a free pin works
     spots = {s["name"]: s["id"] for s in client.get("/api/admin/spots").get_json()}
     assert client.put(f"/api/admin/spots/{spots['A1']}", json={"gpio_pin": 6}).status_code == 400   # A2's pin
     assert client.put(f"/api/admin/spots/{spots['A1']}", json={"gpio_pin": 5}).status_code == 200   # own pin is fine
@@ -87,7 +87,7 @@ def test_sensor_reconfigure_failure_is_reported_not_fatal(service):
     c = create_app(service, on_spots_changed=boom, admin_password="secret123", secret="t").test_client()
     c.post("/api/admin/login", json={"password": "secret123"})
     zone = c.get("/api/admin/zones").get_json()[0]["id"]
-    r = c.post("/api/admin/spots", json={"name": "Q1", "zone_id": zone, "gpio_pin": 12})
+    r = c.post("/api/admin/spots", json={"name": "Q1", "zone_id": zone, "gpio_pin": 4})
     assert r.status_code == 201 and "pin busy" in r.get_json()["warning"]
 
 

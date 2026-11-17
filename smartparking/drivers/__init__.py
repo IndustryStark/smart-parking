@@ -39,5 +39,5 @@ def build_hardware(mock, on_tag, on_change, on_repeat, on_help):
                    config.ULTRASONIC_THRESHOLD_M, config.ULTRASONIC_MAX_M),
         ServoBarrier(config.SERVO_PIN, config.BARRIER_OPEN_S, config.SERVO_OPEN_ANGLE, config.SERVO_CLOSED_ANGLE),
         StatusLED(config.LED_PINS),
-        PushButton(on_repeat, config.REPEAT_BUTTON_PIN),
-        PushButton(on_help, config.HELP_BUTTON_PIN))
+        PushButton(on_repeat, config.REPEAT_BUTTON_PIN, config.BUTTONS_ACTIVE_HIGH),
+        PushButton(on_help, config.HELP_BUTTON_PIN, config.BUTTONS_ACTIVE_HIGH))

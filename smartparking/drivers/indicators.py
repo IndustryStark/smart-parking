@@ -41,14 +41,15 @@ class MockLED:
 
 
 class PushButton:
-    """Push button to GND (internal pull-up). Calls on_press() once per press."""
+    """Push button. active_high=True: the pin goes HIGH when pressed (module with its own VCC, internal pull-down).
+    active_high=False: the pin goes LOW when pressed (button to GND, internal pull-up). Calls on_press() once per press."""
 
-    def __init__(self, on_press, pin):
-        self.on_press, self.pin = on_press, pin
+    def __init__(self, on_press, pin, active_high=False):
+        self.on_press, self.pin, self.active_high = on_press, pin, active_high
 
     def start(self):
         from gpiozero import Button  # Pi only
-        self._button = Button(self.pin, pull_up=True, bounce_time=0.05)
+        self._button = Button(self.pin, pull_up=not self.active_high, bounce_time=0.05)
         self._button.when_pressed = self._fire
 
     def stop(self):
