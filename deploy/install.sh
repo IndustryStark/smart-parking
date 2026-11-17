@@ -9,6 +9,10 @@ APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP_USER="${SUDO_USER:-}"
 [ -n "$APP_USER" ] && [ "$APP_USER" != "root" ] || { echo "Run it with sudo from your normal user, not as root."; exit 1; }
 APP_HOME="$(getent passwd "$APP_USER" | cut -d: -f6)"
+case "$APP_DIR" in
+  *" "*) echo "The folder path contains spaces ($APP_DIR). Move the project somewhere without spaces, e.g. ~/smart-parking, and run again."; exit 1 ;;
+esac
+sudo -u "$APP_USER" test -w "$APP_DIR" || { echo "$APP_USER cannot write to $APP_DIR. Unzip the project in your home folder and run again."; exit 1; }
 KIOSK=0
 for arg in "$@"; do
   case "$arg" in

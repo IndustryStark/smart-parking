@@ -4,6 +4,22 @@ Raspberry Pi parking assistant. An RFID chip per employee is read at the entranc
 in the parking zones closest to the employee's department, shows it on a display, opens the barrier, and
 per-spot sensors keep a live map of the lot.
 
+## Quick start on the Raspberry Pi (from the GitHub ZIP)
+
+1. On GitHub choose **Code > Download ZIP**, copy the ZIP to the Pi (or download it there) and unzip it in your home folder.
+2. Open a terminal in the unzipped folder and run:
+
+```bash
+sudo bash setup.sh            # add --kiosk to open the entrance screen fullscreen after login
+```
+
+3. Reboot once (`sudo reboot`). Smart Parking now starts by itself on every boot.
+
+`setup.sh` installs the system packages, enables SPI, creates the Python environment, generates the admin password
+(printed once, stored in `/etc/smartparking.env`) and installs the service. Afterwards open `http://<pi-address>:5000/admin`.
+Run it again after unzipping a newer version into the same folder; the database in `data/` is kept.
+Wire the hardware first (see "Wiring" below) and test it with `tools/hwtest.py`.
+
 ## Run
 
 ```bash
