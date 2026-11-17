@@ -62,6 +62,14 @@ svg.map.clickable .spot-g{cursor:pointer}
 .led.blink{animation:ledblink .5s steps(2,start) infinite}
 @keyframes ledblink{50%{opacity:.15}}
 @media(prefers-reduced-motion:reduce){.led.blink{animation:none;outline:2px dashed var(--fg)}}
+/* entrance kiosk: just the spot */
+.kiosk-page{min-height:100vh;display:grid}
+.kiosk-main{display:grid;place-items:center;padding:20px;max-width:none;margin:0}
+.kiosk{width:100%;min-height:80vh;display:grid;place-content:center;gap:12px;text-align:center;border-radius:16px;padding:24px}
+.kiosk .label{font-size:clamp(1.2rem,3vw,2rem);text-transform:uppercase;letter-spacing:.12em;opacity:.8}
+.kiosk .spot{font-size:clamp(7rem,32vw,22rem);font-weight:800;line-height:.95}
+.kiosk .line{font-size:clamp(1.6rem,5vw,3.2rem)}
+.kiosk.go{background:var(--free-bg);color:var(--free)} .kiosk.bad{background:var(--occ-bg);color:var(--occ)} .kiosk.idle{background:var(--box)}
 /* entrance */
 .big{font-size:clamp(1.6rem,4vw,2.6rem);line-height:1.2;padding:28px;border-radius:12px;text-align:center}
 .big .spot{font-size:clamp(3rem,10vw,6rem);font-weight:800;display:block;line-height:1}

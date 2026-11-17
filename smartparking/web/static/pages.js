@@ -52,28 +52,24 @@ function initIndex() {
   }
 }
 
+// Entrance kiosk: only what the driver needs. The spot, big. Everything else is one short line.
 function initEntrance() {
-  const svg = $('#map');
+  const box = $('#big');
   let idleTimer;
+  const idle = () => { box.className = 'kiosk idle'; box.replaceChildren(h('div', { class: 'line' }, 'Hold your chip to the reader')); };
   liveState(snap => {
-    renderSignals(snap);
-    const e = snap.entrance, active = entranceActive(snap);
-    const big = $('#big');
-    if (active && e.ok) {
-      big.className = 'big msg ok';
-      big.replaceChildren(h('div', {}, `Welcome ${e.employee}`), h('span', { class: 'spot' }, e.spot),
-        h('div', {}, `Zone ${e.zone}${e.department ? ' · ' + e.department : ''}`));
-    } else if (active) {
-      big.className = e.ok === false ? 'big msg bad' : 'big msg';
-      big.replaceChildren(h('div', {}, e.message));
+    const e = snap.entrance;
+    clearTimeout(idleTimer);
+    if (!entranceActive(snap)) return idle();
+    if (e.ok) {
+      box.className = 'kiosk go';
+      box.replaceChildren(h('div', { class: 'label' }, 'Your spot'), h('div', { class: 'spot' }, e.spot),
+        h('div', { class: 'line' }, `Zone ${e.zone}`));
     } else {
-      big.className = 'big msg';
-      big.replaceChildren(h('div', {}, 'Please scan your chip'));
+      box.className = 'kiosk ' + (e.ok === false ? 'bad' : 'idle');
+      box.replaceChildren(h('div', { class: 'line' }, e.message));
     }
-    $('#barrier').textContent = 'Barrier: ' + snap.barrier;
-    drawMap(svg, snap, { highlightSpotId: active && e.ok ? e.spot_id : null });
-    clearTimeout(idleTimer);   // return to idle when the message expires, even without new events
-    if (active) idleTimer = setTimeout(() => api('GET', '/api/state').then(() => location.reload()), (snap.entrance_ttl - (snap.ts - e.ts) + 0.5) * 1000);
+    idleTimer = setTimeout(idle, Math.max(0, (snap.entrance_ttl - (snap.ts - e.ts))) * 1000 + 300);
   });
 }
 

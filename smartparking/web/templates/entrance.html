@@ -6,18 +6,8 @@
 <title>Smart Parking - Entrance</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body data-page="entrance">
-<header class="top">
-  <h1>Smart Parking</h1>
-  <span class="row"><span id="led" class="led" aria-hidden="true"></span><span class="hint" id="led-label"></span></span>
-  <span class="hint" id="barrier"></span>
-  <nav><a href="/">Live map</a><a href="/entrance" aria-current="page">Entrance screen</a><a href="/admin">Admin</a></nav>
-</header>
-<main>
-  <div id="big" class="big msg"><div>Please scan your chip</div></div>
-  <div class="card"><svg id="map" class="map" role="img" aria-label="Parking lot map with your spot highlighted"></svg></div>
-</main>
-<script>window.MOCK = {{ 'true' if mock else 'false' }};</script>
+<body data-page="entrance" class="kiosk-page">
+<main class="kiosk-main"><div id="big" class="kiosk idle"><div class="line">Hold your chip to the reader</div></div></main>
 <script src="{{ url_for('static', filename='common.js') }}"></script>
 <script src="{{ url_for('static', filename='map.js') }}"></script>
 <script src="{{ url_for('static', filename='pages.js') }}"></script>
