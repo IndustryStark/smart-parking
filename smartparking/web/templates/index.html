@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Parking - Live Map</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-page="index">
+<header class="top">
+  <h1>Smart Parking</h1>
+  <nav><a href="/" aria-current="page">Live map</a><a href="/entrance">Entrance screen</a><a href="/admin">Admin</a></nav>
+</header>
+<main>
+  <div class="tiles">
+    <div class="tile free"><b id="n-free">-</b>free</div>
+    <div class="tile reserved"><b id="n-res">-</b>reserved</div>
+    <div class="tile occupied"><b id="n-occ">-</b>occupied</div>
+  </div>
+  <div class="layout">
+    <div class="card"><h2>Lot</h2><svg id="map" class="map" role="img" aria-label="Parking lot map"></svg></div>
+    <div style="display:grid;gap:20px;align-content:start">
+      <div class="card"><h2>Entrance</h2><div id="entrance-msg" class="msg">Please scan your chip.</div></div>
+      <div class="card"><h2>Entrance signals</h2>
+        <div class="row"><span id="led" class="led" aria-hidden="true"></span><b id="led-label">off</b></div>
+      </div>
+      <div class="card"><h2>Who is where</h2>
+        <div class="scroll"><table id="who"><thead><tr><th>Spot</th><th>Employee</th><th>Dept</th><th>State</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      {% if mock %}
+      <div class="card sim"><h2>Simulator</h2>
+        <p class="hint">Scan a chip at the entrance, then click a spot on the map to park or remove a car.</p>
+        <div id="sim-chips" class="row"></div>
+        <p class="hint" style="margin:12px 0 6px">Buttons</p>
+        <div class="row"><button id="sim-repeat">Button 1: show place again</button><button id="sim-help">Button 2: help</button></div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</main>
+<script>window.MOCK = {{ 'true' if mock else 'false' }};</script>
+<script src="{{ url_for('static', filename='common.js') }}"></script>
+<script src="{{ url_for('static', filename='map.js') }}"></script>
+<script src="{{ url_for('static', filename='pages.js') }}"></script>
+</body>
+</html>

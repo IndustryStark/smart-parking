@@ -1,0 +1,7 @@
+Flask>=2.2
+# Raspberry Pi only (skipped elsewhere; mock mode needs none of these)
+gpiozero; platform_machine == "aarch64" or platform_machine == "armv7l"
+mfrc522; platform_machine == "aarch64" or platform_machine == "armv7l"
+spidev; platform_machine == "aarch64" or platform_machine == "armv7l"
+RPi.GPIO; platform_machine == "aarch64" or platform_machine == "armv7l"
+pytest

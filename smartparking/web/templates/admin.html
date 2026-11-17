@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Parking - Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <h1>Smart Parking Admin</h1>
+  <nav><a href="/">Live map</a><a href="/entrance">Entrance screen</a><a href="/admin" aria-current="page">Admin</a>
+    <button id="logout" hidden>Log out</button></nav>
+</header>
+<main id="app"></main>
+<script src="{{ url_for('static', filename='common.js') }}"></script>
+<script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>
